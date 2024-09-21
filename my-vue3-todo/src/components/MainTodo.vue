@@ -1,0 +1,52 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+
+const todo = ref('');
+const todoList = ref<{ id: number; task: string }[]>([]); //Todoリストを格納する配列を作成
+
+const addTodo = () => {
+  //idはミリ秒から取得して登録
+  const id = new Date().getTime();
+
+  //配列にデータを格納
+  todoList.value.push({ id: id, task: todo.value });
+
+  //JSONファイルにシリアライズ化
+  localStorage.todoList = JSON.stringify(todoList.value);
+
+  todo.value = '';
+};
+</script>
+
+<template>
+  <div>
+    <input type="text" class="todo_input" v-model="todo" placeholder=" + TODOを入力" />
+    <button class="btn" @click="addTodo">追加</button>
+  </div>
+</template>
+
+<style scoped>
+.todo_input {
+  width: 250px;
+  padding: 6px 8px;
+  margin-right: 8px;
+  font-size: 18px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+}
+
+.btn {
+  position: relative;
+  padding: 6px 8px;
+  font-size: 14px;
+  color: #fff;
+  text-align: center;
+  background-color: #03a9f4;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.btn:active {
+  top: 1px;
+}
+</style>
