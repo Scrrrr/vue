@@ -22,12 +22,60 @@ const addTodo = () => {
   todo.value = '';
 };
 //script
+
+const isEdit = ref(false);
+let editId = -1;
+
+const showTodo = (id: number) => {
+  const findTodo = todoList.value.find((todo) => todo.id === id);
+
+  if (findTodo) {
+    todo.value = findTodo.task;
+    isEdit.value = true;
+  }
+};
+
+const editTodo = () => {
+  const findTodo = todoList.value.find((todo) => todo.id === editId);
+
+  const idx = todoList.value.findIndex((todo) => todo.id === editId);
+
+  if (findTodo) {
+    findTodo.task = todo.value;
+
+    todoList.value.splice(idx, 1, findTodo);
+
+    localStorage.todoList = JSON.stringify(todoList.value);
+
+    isEdit.value = false;
+    editId = -1;
+    todo.value = '';
+  }
+};
+
+const deleteTodo = (id: number) => {
+  isEdit.value = false;
+  editId = -1;
+  todo.value = '';
+
+  const findTodo = todoList.value.find((todo) => todo.id === id);
+  const idx = todoList.value.findIndex((todo) => todo.id === id);
+
+  if (findTodo) {
+    const delMsg = '「' + findTodo.task + '」を削除しますか？';
+    if (!confirm(delMsg)) return;
+
+    todoList.value.splice(idx, 1);
+    localStorage.todoList = JSON.stringify(todoList.value);
+  }
+};
 </script>
 
 <template>
   <div>
     <input type="text" class="todo_input" v-model="todo" placeholder=" + TODOを入力" />
-    <button class="btn" @click="addTodo">追加</button>
+    <button class="btn green" @click="editTodo" v-if="isEdit">変更</button>
+    <button class="btn" @click="addTodo" v-else>追加</button>
 
     <div class="todo_list" v-for="todo in todoList" :key="todo.id">
       <div class="todo">
@@ -35,8 +83,8 @@ const addTodo = () => {
         <label>{{ todo.task }}</label>
       </div>
       <div class="btns">
-        <button class="btn green">編</button>
-        <button class="btn pink">削</button>
+        <button class="btn green" @click="showTodo(todo.id)">編</button>
+        <button class="btn pink" @click="deleteTodo(todo.id)">削</button>
       </div>
     </div>
   </div>
