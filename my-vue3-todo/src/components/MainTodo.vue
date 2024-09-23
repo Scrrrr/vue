@@ -29,17 +29,22 @@ let editId = -1;
 const showTodo = (id: number) => {
   const findTodo = todoList.value.find((todo) => todo.id === id);
 
+  // 取得した要素からtaskを取り出し、入力欄へ
   if (findTodo) {
     todo.value = findTodo.task;
     isEdit.value = true;
+    editId = id;
   }
 };
 
 const editTodo = () => {
+  //TODOリストからIDに一致するTODOを取得
   const findTodo = todoList.value.find((todo) => todo.id === editId);
 
+  //TODOリストからIDに一致するインデックスを取得
   const idx = todoList.value.findIndex((todo) => todo.id === editId);
 
+  //taskを編集後のTODOで置き換え
   if (findTodo) {
     findTodo.task = todo.value;
 
