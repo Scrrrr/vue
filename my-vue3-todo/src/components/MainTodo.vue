@@ -1,78 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const todo = ref('');
+import { useTodoList } from '@/composables/useTodoList';
 
-const todoList = ref<{ id: number; task: string }[]>([
-  { id: 1, task: 'TODO1' },
-  { id: 2, task: 'TODO2' },
-  { id: 3, task: 'TODO3' }
-]);
+const todo = ref<string | undefined>();
+const isEdit = ref(false);
+const { todoList, add, show, edit, del } = useTodoList();
 
 const addTodo = () => {
-  //idはミリ秒から取得して登録
-  const id = new Date().getTime();
-
-  //配列にデータを格納
-  todoList.value.push({ id: id, task: todo.value });
-
-  //JSONファイルにシリアライズ化
-  localStorage.todoList = JSON.stringify(todoList.value);
-
+  if (!todo.value) return;
+  add(todo.value);
   todo.value = '';
 };
-//script
-
-const isEdit = ref(false);
-let editId = -1;
 
 const showTodo = (id: number) => {
-  const findTodo = todoList.value.find((todo) => todo.id === id);
-
-  // 取得した要素からtaskを取り出し、入力欄へ
-  if (findTodo) {
-    todo.value = findTodo.task;
+  todo.value = show(id);
+  if (todo.value) {
     isEdit.value = true;
-    editId = id;
   }
 };
 
 const editTodo = () => {
-  //TODOリストからIDに一致するTODOを取得
-  const findTodo = todoList.value.find((todo) => todo.id === editId);
-
-  //TODOリストからIDに一致するインデックスを取得
-  const idx = todoList.value.findIndex((todo) => todo.id === editId);
-
-  //taskを編集後のTODOで置き換え
-  if (findTodo) {
-    findTodo.task = todo.value;
-
-    todoList.value.splice(idx, 1, findTodo);
-
-    localStorage.todoList = JSON.stringify(todoList.value);
-
-    isEdit.value = false;
-    editId = -1;
-    todo.value = '';
-  }
+  if (!todo.value) return;
+  edit(todo.value);
+  isEdit.value = false;
+  todo.value = '';
 };
 
 const deleteTodo = (id: number) => {
   isEdit.value = false;
-  editId = -1;
-  todo.value = '';
-
-  const findTodo = todoList.value.find((todo) => todo.id === id);
-  const idx = todoList.value.findIndex((todo) => todo.id === id);
-
-  if (findTodo) {
-    const delMsg = '「' + findTodo.task + '」を削除しますか？';
-    if (!confirm(delMsg)) return;
-
-    todoList.value.splice(idx, 1);
-    localStorage.todoList = JSON.stringify(todoList.value);
-  }
+  del(id);
 };
 </script>
 
